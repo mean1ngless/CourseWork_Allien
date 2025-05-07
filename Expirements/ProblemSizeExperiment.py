@@ -17,7 +17,7 @@ class ProblemSizeExperiment:
         self.Np = Np
         self.Mp = Mp
         self.Er = Er
-        self.num_experiments = 10
+        self.num_experiments = 30
 
     def run_experiment(self):
 
@@ -77,13 +77,13 @@ class ProblemSizeExperiment:
                     'avg_volume_diff': results['greedy']['volume_diffs'][i],
                     'avg_weight_diff': results['greedy']['weight_diffs'][i],
                     'avg_time': results['greedy']['times'][i],
-                    'total_diff': results['greedy']['volume_diffs'][i] + results['greedy']['weight_diffs'][i]
+                    'total_diff': results['greedy']['volume_diffs'][i] * results['greedy']['weight_diffs'][i]
                 },
                 'genetic': {
                     'avg_volume_diff': results['genetic']['volume_diffs'][i],
                     'avg_weight_diff': results['genetic']['weight_diffs'][i],
                     'avg_time': results['genetic']['times'][i],
-                    'total_diff': results['genetic']['volume_diffs'][i] + results['genetic']['weight_diffs'][i]
+                    'total_diff': results['genetic']['volume_diffs'][i] * results['genetic']['weight_diffs'][i]
                 },
                 'improvement_ratio': (
                         (results['greedy']['volume_diffs'][i] + results['greedy']['weight_diffs'][i]) /

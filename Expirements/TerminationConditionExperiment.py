@@ -16,7 +16,7 @@ class TerminationConditionExperiment:
         self.Mp = Mp
         self.Er = Er
         self.generations_list = generations_list
-        self.num_experiments = 10
+        self.num_experiments = 30
 
     def run_experiment(self):
 
@@ -54,7 +54,7 @@ class TerminationConditionExperiment:
                 'generations': ng,
                 'avg_volume_diff': Rv[i],
                 'avg_weight_diff': Rw[i],
-                'total_diff': Rv[i] + Rw[i]
+                'total_diff': Rv[i] * Rw[i]
             })
 
         optimal_idx = np.argmin([res['total_diff'] for res in analysis_results])

@@ -371,7 +371,7 @@ class ConsoleInterface:
                 print(f"Поколінь: {res['generations']:3d} | "
                       f"Різниця об'ємів: {res['avg_volume_diff']:.2f} | "
                       f"Різниця ваг: {res['avg_weight_diff']:.2f} | "
-                      f"Сумарна різниця: {res['total_diff']:.2f}")
+                      f"Сумарний добуток: {res['total_diff']:.2f}")
 
             input("\nНатисніть Enter для продовження...")
         except ValueError as e:

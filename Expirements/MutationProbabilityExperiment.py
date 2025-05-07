@@ -4,9 +4,9 @@ from ProblemGenerator import ProblemGenerator
 
 
 class MutationProbabilityExperiment:
-    def __init__(self, n, m, Va, Vb, Wa, Wb, Ng, Np, Er, mutation_probs):
-        self.n = n
-        self.m = m
+    def __init__(self, A, B, Va, Vb, Wa, Wb, Ng, Np, Er, mutation_probs):
+        self.A = A
+        self.B = B
         self.Va = Va
         self.Vb = Vb
         self.Wa = Wa
@@ -15,33 +15,40 @@ class MutationProbabilityExperiment:
         self.Np = Np
         self.Er = Er
         self.mutation_probs = mutation_probs
-        self.num_experiments = 10
+        self.num_experiments = 30
 
     def run_experiment(self):
 
-        Rv = np.zeros(len(self.mutation_probs))
-        Rw = np.zeros(len(self.mutation_probs))
+        num_a = len(self.A)
+        num_b = len(self.B)
+        num_mp = len(self.mutation_probs)
+
+        Rv = np.zeros((num_a, num_b, num_mp))
+        Rw = np.zeros((num_a, num_b, num_mp))
 
         for exp in range(self.num_experiments):
+            print(f"Експеримент №{exp + 1}/{self.num_experiments}")
 
-            generator = ProblemGenerator(self.n, self.Va, self.Vb, self.Wa, self.Wb)
-            items = generator.generate_as_dicts()
+            for idx_a, a in enumerate(self.A):
+                for idx_b, b in enumerate(self.B):
 
-            for i, mp in enumerate(self.mutation_probs):
+                    generator = ProblemGenerator(b, self.Va, self.Vb, self.Wa, self.Wb)
+                    items = generator.generate_as_dicts()
 
-                ga = GeneticDistribution(
-                    items=items,
-                    M=self.m,
-                    Np=self.Np,
-                    Ng=self.Ng,
-                    Mp=mp,
-                    Er=self.Er
-                )
+                    for idx_mp, mp in enumerate(self.mutation_probs):
+                        ga = GeneticDistribution(
+                            items=items,
+                            M=a,
+                            Np=self.Np,
+                            Ng=self.Ng,
+                            Mp=mp,
+                            Er=self.Er
+                        )
 
-                _, Wdiff, Vdiff = ga.evolve()
+                        _, Wdiff, Vdiff = ga.evolve()
 
-                Rv[i] += Vdiff
-                Rw[i] += Wdiff
+                        Rv[idx_a, idx_b, idx_mp] += Vdiff
+                        Rw[idx_a, idx_b, idx_mp] += Wdiff
 
         Rv /= self.num_experiments
         Rw /= self.num_experiments
@@ -50,22 +57,30 @@ class MutationProbabilityExperiment:
 
     def analyze_results(self, Rv, Rw):
 
-        results = []
-        for i, mp in enumerate(self.mutation_probs):
-            results.append({
-                'mutation_prob': mp,
-                'avg_volume_diff': Rv[i],
-                'avg_weight_diff': Rw[i],
-                'total_diff': Rv[i] + Rw[i]
-            })
+        analysis = {}
 
-        optimal_idx = np.argmin([res['total_diff'] for res in results])
-        optimal_mp = self.mutation_probs[optimal_idx]
+        for idx_a, a in enumerate(self.A):
+            for idx_b, b in enumerate(self.B):
+                key = f"a={a}, b={b}"
+                results = []
 
-        return {
-            'optimal_mutation_prob': optimal_mp,
-            'detailed_results': results
-        }
+                for idx_mp, mp in enumerate(self.mutation_probs):
+                    results.append({
+                        'mutation_prob': mp,
+                        'avg_volume_diff': Rv[idx_a, idx_b, idx_mp],
+                        'avg_weight_diff': Rw[idx_a, idx_b, idx_mp],
+                        'total_diff': Rv[idx_a, idx_b, idx_mp] + Rw[idx_a, idx_b, idx_mp]
+                    })
+
+                optimal_idx = np.argmin([res['total_diff'] for res in results])
+                optimal_mp = self.mutation_probs[optimal_idx]
+
+                analysis[key] = {
+                    'optimal_mutation_prob': optimal_mp,
+                    'detailed_results': results
+                }
+
+        return analysis
 
     def run_full_experiment(self):
 
