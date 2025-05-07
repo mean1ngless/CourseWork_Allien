@@ -86,8 +86,8 @@ class ProblemSizeExperiment:
                     'total_diff': results['genetic']['volume_diffs'][i] * results['genetic']['weight_diffs'][i]
                 },
                 'improvement_ratio': (
-                        (results['greedy']['volume_diffs'][i] + results['greedy']['weight_diffs'][i]) /
-                        (results['genetic']['volume_diffs'][i] + results['genetic']['weight_diffs'][i])
+                        (results['greedy']['volume_diffs'][i] * results['greedy']['weight_diffs'][i]) /
+                        (results['genetic']['volume_diffs'][i] * results['genetic']['weight_diffs'][i])
                 )
             }
 
