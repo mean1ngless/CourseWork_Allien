@@ -4,7 +4,7 @@ from ProblemGenerator import ProblemGenerator
 
 
 class TerminationConditionExperiment:
-    def __init__(self, n, m, Va, Vb, Wa, Wb, Np, Mp, Er, generations_list):
+    def __init__(self, n, m, Va, Vb, Wa, Wb, Mp, Er, A, B):
 
         self.n = n
         self.m = m
@@ -12,33 +12,45 @@ class TerminationConditionExperiment:
         self.Vb = Vb
         self.Wa = Wa
         self.Wb = Wb
-        self.Np = Np
         self.Mp = Mp
         self.Er = Er
-        self.generations_list = generations_list
+        self.A = A
+        self.B = B
         self.num_experiments = 30
+
+    def calculate_iterations(self, a, b):
+
+        return int(a * self.n + b * self.m)
 
     def run_experiment(self):
 
-        Rv = np.zeros(len(self.generations_list))
-        Rw = np.zeros(len(self.generations_list))
-
-        counts = np.zeros(len(self.generations_list))
+        Rv = np.zeros((len(self.A), len(self.B)))
+        Rw = np.zeros((len(self.A), len(self.B)))
+        counts = np.zeros((len(self.A), len(self.B)))
 
         for exp in range(self.num_experiments):
 
             generator = ProblemGenerator(self.n, self.Va, self.Vb, self.Wa, self.Wb)
             items = generator.generate_as_dicts()
 
-            for i, ng in enumerate(self.generations_list):
+            for i, a in enumerate(self.A):
+                for j, b in enumerate(self.B):
 
-                ga = GeneticDistribution(items, self.m, Np=self.Np, Ng=ng, Mp=self.Mp, Er=self.Er)
+                    iterations = self.calculate_iterations(a, b)
 
-                _, Wdiff, Vdiff = ga.evolve()
+                    ga = GeneticDistribution(
+                        items,
+                        self.m,
+                        Np=50,
+                        Ng=iterations,
+                        Mp=self.Mp,
+                        Er=self.Er
+                    )
+                    _, Wdiff, Vdiff = ga.evolve()
 
-                Rv[i] += Vdiff
-                Rw[i] += Wdiff
-                counts[i] += 1
+                    Rv[i, j] += Vdiff
+                    Rw[i, j] += Wdiff
+                    counts[i, j] += 1
 
         Rv /= counts
         Rw /= counts
@@ -46,18 +58,35 @@ class TerminationConditionExperiment:
         return Rv, Rw
 
     def run_and_analyze(self):
+
         Rv, Rw = self.run_experiment()
 
+        product_matrix = Rv * Rw
+
         analysis_results = []
-        for i, ng in enumerate(self.generations_list):
-            analysis_results.append({
-                'generations': ng,
-                'avg_volume_diff': Rv[i],
-                'avg_weight_diff': Rw[i],
-                'total_diff': Rv[i] * Rw[i]
-            })
+        for i, a in enumerate(self.A):
+            for j, b in enumerate(self.B):
+                iterations = self.calculate_iterations(a, b)
+                analysis_results.append({
+                    'a': a,
+                    'b': b,
+                    'iterations': iterations,
+                    'avg_volume_diff': Rv[i, j],
+                    'avg_weight_diff': Rw[i, j],
+                    'total_diff': product_matrix[i, j]
+                })
 
-        optimal_idx = np.argmin([res['total_diff'] for res in analysis_results])
-        optimal_generations = self.generations_list[optimal_idx]
+        min_idx = np.unravel_index(np.argmin(product_matrix), product_matrix.shape)
+        optimal_a = self.A[min_idx[0]]
+        optimal_b = self.B[min_idx[1]]
+        optimal_iterations = self.calculate_iterations(optimal_a, optimal_b)
 
-        return optimal_generations, analysis_results
+        return {
+            'optimal_a': optimal_a,
+            'optimal_b': optimal_b,
+            'optimal_iterations': optimal_iterations,
+            'volume_diff_matrix': Rv,
+            'weight_diff_matrix': Rw,
+            'product_matrix': product_matrix,
+            'detailed_results': analysis_results
+        }

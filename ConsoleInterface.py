@@ -2,6 +2,9 @@ import os
 import json
 import time
 from datetime import datetime
+
+import numpy as np
+
 from ProblemGenerator import ProblemGenerator
 from Distributions.GreedyDistribution import GreedyDistribution
 from Distributions.GeneticDistribution import GeneticDistribution
@@ -322,15 +325,13 @@ class ConsoleInterface:
         while True:
             self.clear_screen()
             print("=== Експериментальне дослідження ===")
-            print("1. Дослідження умови завершення (кількість поколінь)")
+            print("1. Дослідження умови завершення (Ng/Np)")
             print("2. Дослідження ймовірності мутації")
             print("3. Дослідження впливу розміру задачі")
             print("4. Повернутися до головного меню")
-
             choice = input("Оберіть пункт меню: ")
-
             if choice == '1':
-                self.termination_experiment()
+                self.termination_condition_experiment()
             elif choice == '2':
                 self.mutation_experiment()
             elif choice == '3':
@@ -341,10 +342,9 @@ class ConsoleInterface:
                 print("Невірний вибір. Спробуйте ще раз.")
                 input("Натисніть Enter для продовження...")
 
-    def termination_experiment(self):
+    def termination_condition_experiment(self):
         self.clear_screen()
-        print("=== Дослідження умови завершення ===")
-
+        print("=== Експеримент: Умова завершення генетичного алгоритму ===")
         try:
             n = int(input("Кількість предметів: "))
             m = int(input("Кількість рук: "))
@@ -352,31 +352,38 @@ class ConsoleInterface:
             Vb = float(input("Максимальний об'єм: "))
             Wa = float(input("Мінімальна вага: "))
             Wb = float(input("Максимальна вага: "))
-            Np = int(input("Розмір популяції: "))
             Mp = float(input("Ймовірність мутації: "))
             Er = float(input("Частка еліти: "))
-
-            generations = input("Список кількостей поколінь (через кому): ")
-            generations_list = [int(x.strip()) for x in generations.split(',')]
+            print("\nПараметри експерименту:")
+            A_input = input("Список значень параметрів A: ")
+            B_input = input("Список значень параметрів B: ")
+            A = [int(x.strip()) for x in A_input.split(',')]
+            B = [int(x.strip()) for x in B_input.split(',')]
 
             print("\nЗапуск експерименту...")
-            experiment = TerminationConditionExperiment(n, m, Va, Vb, Wa, Wb, Np, Mp, Er, generations_list)
-            optimal_ng, results = experiment.run_and_analyze()
+            experiment = TerminationConditionExperiment(n, m, Va, Vb, Wa, Wb, Mp, Er, A, B)
+            result = experiment.run_and_analyze()
+
+            analysis = result['detailed_results']
+            optimal = analysis[np.argmin([x['total_diff'] for x in analysis])]
 
             print("\nРезультати експерименту:")
-            print(f"Оптимальна кількість поколінь: {optimal_ng}")
-
+            print(f"Оптимальна комбінація: A={optimal['a']}, B={optimal['b']}")
+            print(f"Рекомендована кількість ітерацій: {optimal['iterations']}")
             print("\nДетальні результати:")
-            for res in results:
-                print(f"Поколінь: {res['generations']:3d} | "
-                      f"Різниця об'ємів: {res['avg_volume_diff']:.2f} | "
-                      f"Різниця ваг: {res['avg_weight_diff']:.2f} | "
-                      f"Сумарний добуток: {res['total_diff']:.2f}")
-
+            for res in analysis:
+                print(
+                    f"A={res['a']:4} | "
+                    f"B={res['b']:4} | "
+                    f"Різниця об'ємів: {res['avg_volume_diff']:.2f} | "
+                    f"Різниця ваг: {res['avg_weight_diff']:.2f} | "
+                    f"Сумарний добуток: {res['total_diff']:.2f}"
+                )
             input("\nНатисніть Enter для продовження...")
-        except ValueError as e:
-            print(f"Помилка введення даних: {e}")
-            input("Натисніть Enter для продовження...")
+
+        except Exception as e:
+            print(f"\nПомилка: {e}")
+            input("Натисніть Enter для повернення...")
 
     def mutation_experiment(self):
         self.clear_screen()
