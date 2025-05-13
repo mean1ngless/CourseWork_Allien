@@ -4,7 +4,7 @@ from ProblemGenerator import ProblemGenerator
 
 
 class TerminationConditionExperiment:
-    def __init__(self, n, m, Va, Vb, Wa, Wb, Mp, Er, A, B):
+    def __init__(self, n, m, Va, Vb, Wa, Wb, Mp, Er, A, B, Np):
 
         self.n = n
         self.m = m
@@ -16,6 +16,7 @@ class TerminationConditionExperiment:
         self.Er = Er
         self.A = A
         self.B = B
+        self.Np=Np;
         self.num_experiments = 30
 
     def calculate_iterations(self, a, b):
@@ -23,25 +24,22 @@ class TerminationConditionExperiment:
         return int(a * self.n + b * self.m)
 
     def run_experiment(self):
-
         Rv = np.zeros((len(self.A), len(self.B)))
         Rw = np.zeros((len(self.A), len(self.B)))
         counts = np.zeros((len(self.A), len(self.B)))
 
         for exp in range(self.num_experiments):
-
             generator = ProblemGenerator(self.n, self.Va, self.Vb, self.Wa, self.Wb)
             items = generator.generate_as_dicts()
 
             for i, a in enumerate(self.A):
                 for j, b in enumerate(self.B):
-
                     iterations = self.calculate_iterations(a, b)
 
                     ga = GeneticDistribution(
                         items,
                         self.m,
-                        Np=50,
+                        Np=self.Np,
                         Ng=iterations,
                         Mp=self.Mp,
                         Er=self.Er

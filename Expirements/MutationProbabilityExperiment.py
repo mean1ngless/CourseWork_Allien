@@ -56,7 +56,7 @@ class MutationProbabilityExperiment:
                 'mutation_prob': mp,
                 'avg_volume_diff': Rv[i],
                 'avg_weight_diff': Rw[i],
-                'total_diff': Rv[i] + Rw[i]
+                'total_diff': Rv[i] * Rw[i]
             })
 
         optimal_idx = np.argmin([res['total_diff'] for res in results])

@@ -1,0 +1,40 @@
+{
+    "current": {
+        "n": 3,
+        "m": 2,
+        "items": [
+            {
+                "weight": 5.0,
+                "volume": 4.0
+            },
+            {
+                "weight": 2.0,
+                "volume": 3.0
+            },
+            {
+                "weight": 5.0,
+                "volume": 6.0
+            }
+        ]
+    },
+    "problems": {
+        "manual_20250513_161350": {
+            "n": 3,
+            "m": 2,
+            "items": [
+                {
+                    "weight": 5.0,
+                    "volume": 4.0
+                },
+                {
+                    "weight": 2.0,
+                    "volume": 3.0
+                },
+                {
+                    "weight": 5.0,
+                    "volume": 6.0
+                }
+            ]
+        }
+    }
+}

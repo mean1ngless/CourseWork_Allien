@@ -315,9 +315,20 @@ class ConsoleInterface:
             print(f"  Рука {i + 1}: {[int(item) for item in hand]}")
 
         print("\nПорівняння результатів:")
-        print(f"Покращення по вазі: {gr_wdiff / ge_wdiff:.2f}x")
-        print(f"Покращення по об'єму: {gr_vdiff / ge_vdiff:.2f}x")
-        print(f"Відношення часу: {genetic_time / greedy_time:.2f}x")
+        if ge_wdiff != 0:
+            print(f"Покращення по вазі: {gr_wdiff / ge_wdiff:.2f}x")
+        else:
+            print("Покращення по вазі: неможливо обчислити (ділення на нуль)")
+
+        if ge_vdiff != 0:
+            print(f"Покращення по об'єму: {gr_vdiff / ge_vdiff:.2f}x")
+        else:
+            print("Покращення по об'єму: неможливо обчислити (ділення на нуль)")
+
+        if greedy_time != 0:
+            print(f"Відношення часу: {genetic_time / greedy_time:.2f}x")
+        else:
+            print("Відношення часу: неможливо обчислити (ділення на нуль)")
 
         input("\nНатисніть Enter для продовження...")
 
@@ -325,7 +336,7 @@ class ConsoleInterface:
         while True:
             self.clear_screen()
             print("=== Експериментальне дослідження ===")
-            print("1. Дослідження умови завершення (Ng/Np)")
+            print("1. Дослідження умови завершення")
             print("2. Дослідження ймовірності мутації")
             print("3. Дослідження впливу розміру задачі")
             print("4. Повернутися до головного меню")
@@ -354,6 +365,7 @@ class ConsoleInterface:
             Wb = float(input("Максимальна вага: "))
             Mp = float(input("Ймовірність мутації: "))
             Er = float(input("Частка еліти: "))
+            Np = int(input("Розмір популяції: "))
             print("\nПараметри експерименту:")
             A_input = input("Список значень параметрів A: ")
             B_input = input("Список значень параметрів B: ")
@@ -361,7 +373,7 @@ class ConsoleInterface:
             B = [int(x.strip()) for x in B_input.split(',')]
 
             print("\nЗапуск експерименту...")
-            experiment = TerminationConditionExperiment(n, m, Va, Vb, Wa, Wb, Mp, Er, A, B)
+            experiment = TerminationConditionExperiment(n, m, Va, Vb, Wa, Wb, Mp, Er, A, B, Np)
             result = experiment.run_and_analyze()
 
             analysis = result['detailed_results']

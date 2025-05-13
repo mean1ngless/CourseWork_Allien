@@ -88,6 +88,8 @@ class ProblemSizeExperiment:
                 'improvement_ratio': (
                         (results['greedy']['volume_diffs'][i] * results['greedy']['weight_diffs'][i]) /
                         (results['genetic']['volume_diffs'][i] * results['genetic']['weight_diffs'][i])
+                        if (results['genetic']['volume_diffs'][i] * results['genetic']['weight_diffs'][i]) != 0
+                        else float('inf')
                 )
             }
 
