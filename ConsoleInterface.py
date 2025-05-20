@@ -4,7 +4,7 @@ import time
 from datetime import datetime
 
 import numpy as np
-
+import matplotlib.pyplot as plt
 from ProblemGenerator import ProblemGenerator
 from Distributions.GreedyDistribution import GreedyDistribution
 from Distributions.GeneticDistribution import GeneticDistribution
@@ -389,7 +389,7 @@ class ConsoleInterface:
                     f"B={res['b']:4} | "
                     f"Різниця об'ємів: {res['avg_volume_diff']:.2f} | "
                     f"Різниця ваг: {res['avg_weight_diff']:.2f} | "
-                    f"Сумарний добуток: {res['total_diff']:.2f}"
+                    f"Добуток різниць: {res['total_diff']:.2f}"
                 )
             input("\nНатисніть Enter для продовження...")
 
@@ -427,7 +427,7 @@ class ConsoleInterface:
                 print(f"Ймовірність мутації: {res['mutation_prob']:.2f} | "
                       f"Різниця об'ємів: {res['avg_volume_diff']:.2f} | "
                       f"Різниця ваг: {res['avg_weight_diff']:.2f} | "
-                      f"Сумарна різниця: {res['total_diff']:.2f}")
+                      f"Добуток різниць: {res['total_diff']:.2f}")
 
             input("\nНатисніть Enter для продовження...")
         except ValueError as e:
@@ -444,10 +444,10 @@ class ConsoleInterface:
             Vb = float(input("Максимальний об'єм: "))
             Wa = float(input("Мінімальна вага: "))
             Wb = float(input("Максимальна вага: "))
-            Ng = int(input("Кількість поколінь (для GA): "))
-            Np = int(input("Розмір популяції (для GA): "))
-            Mp = float(input("Ймовірність мутації (для GA): "))
-            Er = float(input("Частка еліти (для GA): "))
+            Ng = int(input("Кількість поколінь: "))
+            Np = int(input("Розмір популяції: "))
+            Mp = float(input("Ймовірність мутації: "))
+            Er = float(input("Частка еліти: "))
 
             sizes = input("Список кількостей предметів (через кому): ")
             size_list = [int(x.strip()) for x in sizes.split(',')]
@@ -468,6 +468,43 @@ class ConsoleInterface:
                 print(f"  Різниця ваг: {analysis[n]['genetic']['avg_weight_diff']:.2f}")
                 print(f"  Час: {analysis[n]['genetic']['avg_time']:.4f} сек")
                 print(f"  Покращення якості: {analysis[n]['improvement_ratio']:.2f}x")
+
+            sizes = sorted(analysis.keys())
+            greedy_diffs = [analysis[n]['greedy']['total_diff'] for n in sizes]
+            genetic_diffs = [analysis[n]['genetic']['total_diff'] for n in sizes]
+            greedy_times = [analysis[n]['greedy']['avg_time'] for n in sizes]
+            genetic_times = [analysis[n]['genetic']['avg_time'] for n in sizes]
+
+            plt.figure(figsize=(8, 5))
+            plt.plot(sizes, greedy_diffs, 'b-', label='Жадібний алгоритм')
+            plt.plot(sizes, genetic_diffs, 'r-', label='Генетичний алгоритм')
+            plt.xlabel('Кількість предметів')
+            plt.ylabel('Добуток різниць (об\'єм × вага)')
+            plt.title('Якість розподілу')
+            plt.grid(True)
+            plt.legend()
+            plt.tight_layout()
+            plt.show()
+
+            plt.figure(figsize=(8, 5))
+            plt.plot(sizes, greedy_times, 'b-o', label='Жадібний алгоритм')
+            plt.xlabel('Кількість предметів')
+            plt.ylabel('Час виконання (секунди)')
+            plt.title('Час виконання жадібного алгоритму')
+            plt.grid(True)
+            plt.legend()
+            plt.tight_layout()
+            plt.show()
+
+            plt.figure(figsize=(8, 5))
+            plt.plot(sizes, genetic_times, 'r-o', label='Генетичний алгоритм')
+            plt.xlabel('Кількість предметів')
+            plt.ylabel('Час виконання (секунди)')
+            plt.title('Час виконання генетичного алгоритму')
+            plt.grid(True)
+            plt.legend()
+            plt.tight_layout()
+            plt.show()
 
             input("\nНатисніть Enter для продовження...")
         except ValueError as e:
